@@ -3,78 +3,79 @@ logger = logging.getLogger(__name__)
 
 class Event:
     def __init__(self):
-        self.handlers = set()
-        self.counter = 0
-        self.fireStack = 0
-        self._handle_queue = []
-        self._unhandle_queue = []
+        self._subscribers = set()
+        self._fireCount = 0
+        self._currentFireCount = 0
+        self._subscribe_queue = []
+        self._unsubscribe_queue = []
 
-    def handle(self, handler):
+    def subscribe(self, subscriber):
+        # only modify the _subscribers set if we're not currently firing
+        # otherwise queue the subscription for processing after firing is done
         if self.isFiring():
-            self._handle_queue.append(handler)
+            self._subscribe_queue.append(subscriber)
             return self
 
-        self.handlers.add(handler)
+        self._subscribers.add(subscriber)
         return self
 
-    def unhandle(self, handler):
+    def unsubscribe(self, subscriber):
+        # only modify the _subscribers set if we're not currently firing
+        # otherwise queue the unsubscription for processing after firing is done
         if self.isFiring():
-            self._unhandle_queue.append(handler)
+            self._unsubscribe_queue.append(subscriber)
             return self
 
         try:
-            self.handlers.remove(handler)
-        except:
-            # raise ValueError("Handler is not handling this event, so cannot unhandle it.")
-            logger.warning('Event.unhandle got unknown handler')
-            # traceback.print_exc()
-            # traceback.print_stack()
+            self._subscribers.remove(subscriber)
+        except KeyError as err:
+            logger.warning('Event.unsubscribe got unknown handler: {}'.format(err))
 
         return self
 
-    def handles(self, handler):
-        return handler in self.handlers
+    def isSubscribed(self, subscriber):
+        return subscriber in self._subscribers
 
     def fire(self, *args, **kargs):
-        # change state
-        self.fireStack += 1
+        # count the number of (recursive) fires currently happening
+        self._currentFireCount += 1
 
-        # execute all handlers
-        for handler in self.handlers:
-            # the handler might have got 'unhandled' inside one of the
-            # previous handlers
-            if not handler in self._unhandle_queue:
-                handler(*args, **kargs)
+        # execute all subscribers
+        for subscriber in self._subscribers:
+            # the handler might have got unsubscribed
+            # inside one of the previous subscribers
+            if not subscriber in self._unsubscribe_queue:
+                subscriber(*args, **kargs)
 
-        # change state back
-        self.fireStack -= 1
+        # current fire cycle is done, uncount it
+        self._currentFireCount -= 1
 
         # we're counting the number of fires (mostly for testing purposes)
-        self.counter += 1
+        self._fireCount += 1
 
         # only if we're not still in a recursive fire situation
         if not self.isFiring():
-            # process queues
-            for handler in self._handle_queue:
-                # add to our handlers list
-                self.handle(handler)
+            self._processQueues()
 
-            for handler in self._unhandle_queue:
-                # remoev from our handlers list
-                self.unhandle(handler)
+    def _processQueues(self):
+        for subscriber in self._subscribe_queue:
+            self.subscribe(subscriber)
 
-            # reset queues
-            self._handle_queue = []
-            self._unhandle_queue = []
+        for subscriber in self._unsubscribe_queue:
+            self.unsubscribe(subscriber)
 
-    def getHandlerCount(self):
-        return len(self.handlers)
+        # reset processed queues
+        self._subscribe_queue = []
+        self._unsubscribe_queue = []
+
+    def getSubscriberCount(self):
+        return len(self._subscribers)
 
     def isFiring(self):
-        return self.fireStack > 0
+        return self._currentFireCount > 0
 
-    __iadd__ = handle
-    __isub__ = unhandle
+    __iadd__ = subscribe
+    __isub__ = unsubscribe
     __call__ = fire
-    __len__  = getHandlerCount
-    __contains__ = handles
+    __len__  = getSubscriberCount
+    __contains__ = isSubscribed
