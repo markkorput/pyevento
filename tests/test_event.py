@@ -68,17 +68,17 @@ class TestEventMethods(unittest.TestCase):
         e += observer1
         self.assertEqual(e.getSubscriberCount(), 1)
 
-    def test_isSubscribed(self):
+    def test_hasSubscriber(self):
         # setup
         e = Event()
         def observer():
             pass
         # assert
-        self.assertEqual(e.isSubscribed(observer), False)
+        self.assertEqual(e.hasSubscriber(observer), False)
         e += observer
-        self.assertEqual(e.isSubscribed(observer), True)
+        self.assertEqual(e.hasSubscriber(observer), True)
         e -= observer
-        self.assertEqual(e.isSubscribed(observer), False)
+        self.assertEqual(e.hasSubscriber(observer), False)
 
     def test_magic_methods(self):
         e = Event()
@@ -96,7 +96,7 @@ class TestEventMethods(unittest.TestCase):
         self.assertEqual(e.__len__, e.getSubscriberCount)
         # this lets you check if a method is already subscribed to the event like this:
         # observer_method in e
-        self.assertEqual(e.__contains__, e.isSubscribed)
+        self.assertEqual(e.__contains__, e.hasSubscriber)
 
 class TestEventModifierSubscribers(unittest.TestCase):
     def remover_callback(self):
