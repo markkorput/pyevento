@@ -33,7 +33,7 @@ class Event:
 
         return self
 
-    def isSubscribed(self, subscriber):
+    def hasSubscriber(self, subscriber):
         return subscriber in self._subscribers
 
     def fire(self, *args, **kargs):
@@ -78,4 +78,4 @@ class Event:
     __isub__ = unsubscribe
     __call__ = fire
     __len__  = getSubscriberCount
-    __contains__ = isSubscribed
+    __contains__ = hasSubscriber
