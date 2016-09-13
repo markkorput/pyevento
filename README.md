@@ -56,3 +56,62 @@ observer = ActionCounter(performer)
 performer.run() # => "'Foo action' ran 1 times"
 performer.run() # => "'Foo action' ran 2 times"
 ```
+
+## Decorators
+
+The evento package the following three decorators to easily add before and/or after events to any method:
+
+```python
+@triggers_before_event
+@triggers_after_event
+@triggers_beforeafter_events
+```
+
+They can be used as followed:
+
+```python
+from evento import triggers_before_event, triggers_after_event, triggers_beforeafter_events
+
+def before(event):
+    print 'before'
+
+def after(event):
+    print 'after'
+
+@triggers_before_event
+def before_action(param1):
+    print param1
+
+@triggers_after_event
+def after_action(param1, param2, param3):
+    print ' '.join([param1, param2, param3])
+
+@triggers_beforeafter_events
+def both_action():
+    print 'during'
+
+
+before_action('first before') # => "first before"
+after_action('first after:', '1', '2') # => "first after: 1 2"
+both_action() # => "during"
+
+# add event callbacks using subscribe method
+before_action.subscribe(before)
+# add event callbacks using += operator
+after_action.subscribe(after)
+# @triggers_beforeafter_events doesn't support += and -= operators, only the subscribe method
+both_action.subscribe(before, after)
+
+before_action('second before') # => "before\nsecond before"
+after_action('second after:', '3', '4') # => second after: 3 4\nafter"
+both_action() # before\nduring\nafter
+
+```
+
+Note that these decorators simply wrap the function in a class that also holds a beforeEvent and/or afterEvent, which is/are triggered before/after the function is invoked. To clarify; within the context of the above example, the following two lines do exactly the same:
+
+```python
+before_action.subscribe(before)
+before_action.beforeEvent += before
+```
+
