@@ -8,4 +8,5 @@ setup(name='evento',
       author_email='dr.theman@gmail.com',
       license='MIT',
       packages=['evento'],
-      zip_safe=True)
+      zip_safe=True,
+      test_suite='tests')
