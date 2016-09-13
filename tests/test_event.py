@@ -98,6 +98,44 @@ class TestEventMethods(unittest.TestCase):
         # observer_method in e
         self.assertEqual(e.__contains__, e.isSubscribed)
 
+class TestEventModifierSubscribers(unittest.TestCase):
+    def remover_callback(self):
+        self.e -= self.remover_callback
+
+    def test_recursion_with_unsubscribing_callback(self):
+        self.e = Event()
+        self.e += self.remover_callback
+
+        try:
+            self.e()
+        except RuntimeError as err:
+            self.fail("Event failed to deal with a subscriber that unsubscribed itself")
+
+    def subscriber_callback(self):
+        self.e += self.remover_callback
+
+    def test_recursion_with_subscribing_callback(self):
+        self.e = Event()
+        self.e += self.subscriber_callback
+
+        try:
+            self.e()
+        except RuntimeError as err:
+            self.fail("Event failed to deal with a subscriber that subscribed another observer")
+
+    def test_recursion_without_complications(self):
+        self.e = Event()
+        def callback(val):
+            self.value += val
+            if(len(self.value) < 3):
+                self.e(self.value)
+        self.e += callback
+        self.value = ''
+        self.e('a')
+        self.assertEqual(self.value, 'aaaa')
+
+
+
 # run just the tests in this file
 if __name__ == '__main__':
     unittest.main()
