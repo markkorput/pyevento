@@ -59,7 +59,7 @@ performer.run() # => "'Foo action' ran 2 times"
 
 ## Decorators
 
-The evento package the following three decorators to easily add before and/or after events to any method:
+The evento package provides the following decorators to easily add before and/or after events to any method:
 
 ```python
 @triggers_before_event
@@ -95,11 +95,9 @@ before_action('first before') # => "first before"
 after_action('first after:', '1', '2') # => "first after: 1 2"
 both_action() # => "during"
 
-# add event callbacks using subscribe method
+# subscribe callbacks to the decorated methods
 before_action.subscribe(before)
-# add event callbacks using += operator
 after_action.subscribe(after)
-# @triggers_beforeafter_events doesn't support += and -= operators, only the subscribe method
 both_action.subscribe(before, after)
 
 before_action('second before') # => "before\nsecond before"
@@ -114,4 +112,3 @@ Note that these decorators simply wrap the function in a class that also holds a
 before_action.subscribe(before)
 before_action.beforeEvent += before
 ```
-
