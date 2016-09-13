@@ -1,4 +1,7 @@
 # pyevento
+[![Build Status](https://travis-ci.org/markkorput/pyevento.svg)](https://travis-ci.org/markkorput/pyevento)
+
+
 Python evento package, making the Observer pattern estúpida sencillo.
 
 ## Install
