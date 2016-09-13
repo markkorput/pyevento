@@ -4,7 +4,7 @@ Python evento package, making the Observer pattern estúpida sencillo.
 ## Install
 
 ```shell
-pip install omxsync
+pip install evento
 ```
 
 ## Usage
