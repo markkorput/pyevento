@@ -9,7 +9,7 @@ class BeforeEventMethodWrapper:
         self.beforeEvent(self.beforeEvent)
         self.method(*args, **kwargs)
 
-def trigger_before_event(func):
+def triggers_before_event(func):
     return BeforeEventMethodWrapper(func)
 
 class AfterEventMethodWrapper:
@@ -21,7 +21,7 @@ class AfterEventMethodWrapper:
         self.method(*args, **kwargs)
         self.afterEvent(self.afterEvent)
 
-def trigger_after_event(func):
+def triggers_after_event(func):
     return AfterEventMethodWrapper(func)
 
 class AroundEventMethodWrapper:
@@ -35,5 +35,5 @@ class AroundEventMethodWrapper:
         self.method(*args, **kwargs)
         self.afterEvent(self.afterEvent)
 
-def trigger_beforeafter_events(func):
+def triggers_beforeafter_events(func):
     return AroundEventMethodWrapper(func)
