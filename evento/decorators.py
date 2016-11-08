@@ -1,4 +1,4 @@
-from event import Event
+from .event import Event
 
 class BeforeEventMethodWrapper:
     def __init__(self, method):
