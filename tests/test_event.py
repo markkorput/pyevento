@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import unittest
-import helper
 from evento import Event
 
 class TestEventMethods(unittest.TestCase):
