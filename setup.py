@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='evento',
-      version='1.0.0',
+      version='1.0.1',
       description='Observer pattern made muy facil',
       url='http://github.com/markkorput/pyevento',
       author='Mark van de Korput',
