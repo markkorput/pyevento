@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import unittest
-import helper
 from evento import triggers_before_event, triggers_after_event, triggers_beforeafter_events
 
 class TestDecorators(unittest.TestCase):
