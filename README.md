@@ -48,7 +48,12 @@ class Action:
 class ActionCounter:
 	def __init__(self, action_performer):
 		self.count = 0
-		action_performer.runEvent += self._onActionRun
+		self.actionEvent = action_performer.runEvent
+		self.actionEvent += self._onActionRun
+
+	def __del__(self):
+		# observers should always make sure to _unsubscribe_ from events when they are done
+		self.actionEvent -= self._onActionRun
 
 	def _onActionRun(self, action_performer):
 		self.count += 1
