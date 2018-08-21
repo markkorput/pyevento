@@ -52,7 +52,7 @@ class ActionCounter:
 
 	def _onActionRun(self, action_performer):
 		self.count += 1
-		print "'{0}' ran {1} times".format(action_performer.name, self.count)
+		print("'{0}' ran {1} times".format(action_performer.name, self.count))
 
 performer = Action('Foo action')
 observer = ActionCounter(performer)
@@ -76,22 +76,22 @@ They can be used as followed:
 from evento import triggers_before_event, triggers_after_event, triggers_beforeafter_events
 
 def before(event):
-    print 'before'
+    print('before')
 
 def after(event):
-    print 'after'
+    print('after')
 
 @triggers_before_event
 def before_action(param1):
-    print param1
+    print(param1)
 
 @triggers_after_event
 def after_action(param1, param2, param3):
-    print ' '.join([param1, param2, param3])
+    print(' '.join([param1, param2, param3]))
 
 @triggers_beforeafter_events
 def both_action():
-    print 'during'
+    print('during')
 
 
 before_action('first before') # => "first before"
