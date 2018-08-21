@@ -17,7 +17,7 @@ from evento import Event
 
 # observers are simply methods
 def observer(param1, param2):
-	print ', '.join([param1, param2])
+	print(', '.join([param1, param2]))
 
 # we need to create an instance for every event we want to fire
 demo_event = Event()
