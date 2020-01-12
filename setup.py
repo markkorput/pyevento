@@ -2,7 +2,7 @@ from setuptools import setup
 import os.path
 
 long_description = ''
-with open(os.path.join(os.path.dirname(__name__), 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(os.path.dirname(__name__), 'README.md')) as f:
     long_description = f.read()
 
 setup(name='evento',
