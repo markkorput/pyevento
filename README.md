@@ -65,6 +65,30 @@ performer.run() # => "'Foo action' ran 1 times"
 performer.run() # => "'Foo action' ran 2 times"
 ```
 
+### Unsubscribe function returned by .add
+```python
+
+# setup
+event = Event()
+
+def setup():
+	def handler(value):
+		print(value)
+
+	unsubscribe = event.add(handler)
+	return unsubscribe
+
+cleanup = setup()
+
+# do stuff
+# ...
+
+# cleanup
+cleanup()
+```
+		
+
+
 ## Decorators
 
 The evento package provides the following decorators to easily add before and/or after events to any method:

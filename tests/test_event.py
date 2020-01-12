@@ -97,6 +97,18 @@ class TestEventMethods(unittest.TestCase):
         # observer_method in e
         self.assertEqual(e.__contains__, e.hasSubscriber)
 
+    def test_add(self):
+        e = Event()
+
+        def foo():
+            pass
+
+        # add method does the same as subscribe, but returns an unsubscribe function
+        unsub = e.add(foo)
+        self.assertEqual(e.getSubscriberCount(), 1)
+        unsub()
+        self.assertEqual(e.getSubscriberCount(), 0)
+
 class TestEventModifierSubscribers(unittest.TestCase):
     def remover_callback(self):
         self.e -= self.remover_callback
@@ -135,6 +147,9 @@ class TestEventModifierSubscribers(unittest.TestCase):
 
 
 
+
 # run just the tests in this file
 if __name__ == '__main__':
     unittest.main()
+
+

@@ -74,6 +74,12 @@ class Event:
     def isFiring(self):
         return self._currentFireCount > 0
 
+    def add(self, subscriber):
+        self.subscribe(subscriber)
+        def unsub():
+            self.unsubscribe(subscriber)
+        return unsub
+
     __iadd__ = subscribe
     __isub__ = unsubscribe
     __call__ = fire
