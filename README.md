@@ -1,9 +1,7 @@
 # pyevento
 
 [![Build Status](https://travis-ci.org/markkorput/pyevento.svg)](https://travis-ci.org/markkorput/pyevento)
-
 [![PyPI wheel](https://img.shields.io/pypi/wheel/evento?style=flat)](https://pypi.org/project/evento/ "View this project on npm")
-
 [![Github Tag](https://img.shields.io/github/tag/markkorput/pyevento.svg?label=version)](https://github.com/markkorput/pyevento/releases/latest)
 
 
