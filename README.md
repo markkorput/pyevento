@@ -1,6 +1,9 @@
 # pyevento
+[![PyPI wheel](https://img.shields.io/pypi/wheel/evento?style=flat)](https://pypi.org/project/evento/ "View this project on npm")
+
 [![Build Status](https://travis-ci.org/markkorput/pyevento.svg)](https://travis-ci.org/markkorput/pyevento)
 
+[![Github Tag][github-tag-image]][github-tag-url]
 
 Python evento package, making the Observer pattern estúpida sencillo.
 
