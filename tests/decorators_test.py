@@ -62,7 +62,7 @@ class TestDecorators:
         def some_action():
             self.value += "a"
 
-        def before(event):
+        def before(_):
             pass
 
         assert not some_action.beforeEvent.hasSubscriber(before)
@@ -83,7 +83,7 @@ class TestDecorators:
         def some_action():
             self.value += "a"
 
-        def after(event):
+        def after(_):
             pass
 
         assert not some_action.afterEvent.hasSubscriber(after)
@@ -104,10 +104,10 @@ class TestDecorators:
         def some_action():
             self.value += "a"
 
-        def before(event):
+        def before(_):
             pass
 
-        def after(event):
+        def after(_):
             pass
 
         assert not some_action.beforeEvent.hasSubscriber(before)

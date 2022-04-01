@@ -1,17 +1,20 @@
 import logging
+from typing import Any, Callable, List, Set
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
+
+Observer = Any
 
 
 class Event:
-    def __init__(self):
-        self._subscribers = set()
+    def __init__(self) -> None:
+        self._subscribers: Set[Observer] = set()
         self._fireCount = 0
         self._currentFireCount = 0
-        self._subscribe_queue = []
-        self._unsubscribe_queue = []
+        self._subscribe_queue: List[Observer] = []
+        self._unsubscribe_queue: List[Observer] = []
 
-    def subscribe(self, subscriber):
+    def subscribe(self, subscriber: Observer) -> "Event":
         # only modify the _subscribers set if we're not currently firing
         # otherwise queue the subscription for processing after firing is done
         if self.isFiring():
@@ -21,7 +24,7 @@ class Event:
         self._subscribers.add(subscriber)
         return self
 
-    def unsubscribe(self, subscriber):
+    def unsubscribe(self, subscriber: Observer) -> "Event":
         # only modify the _subscribers set if we're not currently firing
         # otherwise queue the unsubscription for processing after firing is done
         if self.isFiring():
@@ -31,14 +34,14 @@ class Event:
         try:
             self._subscribers.remove(subscriber)
         except KeyError as err:
-            logger.warning("Event.unsubscribe got unknown handler: {}".format(err))
+            log.warning("Event.unsubscribe got unknown handler: {}".format(err))
 
         return self
 
-    def hasSubscriber(self, subscriber):
+    def hasSubscriber(self, subscriber: Observer) -> bool:
         return subscriber in self._subscribers
 
-    def fire(self, *args, **kargs):
+    def fire(self, *args: Any, **kargs: Any) -> None:
         # count the number of (recursive) fires currently happening
         self._currentFireCount += 1
 
@@ -59,7 +62,7 @@ class Event:
         if not self.isFiring():
             self._processQueues()
 
-    def _processQueues(self):
+    def _processQueues(self) -> None:
         for subscriber in self._subscribe_queue:
             self.subscribe(subscriber)
 
@@ -70,16 +73,18 @@ class Event:
         self._subscribe_queue = []
         self._unsubscribe_queue = []
 
-    def getSubscriberCount(self):
+    def getSubscriberCount(self) -> int:
         return len(self._subscribers)
 
-    def isFiring(self):
+    def isFiring(self) -> bool:
         return self._currentFireCount > 0
 
-    def add(self, subscriber):
+    def add(self, subscriber: Observer) -> Callable[[], None]:
+        """Same as `subscribe` but returns a callable without arguments
+        that can be used to unsubscribe the `subscriber`"""
         self.subscribe(subscriber)
 
-        def unsub():
+        def unsub() -> None:
             self.unsubscribe(subscriber)
 
         return unsub
