@@ -1,6 +1,8 @@
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 from .event import Event
+
+T = TypeVar("T")
 
 Method = Callable[..., Any]
 Observer = Callable[..., Any]
@@ -9,7 +11,7 @@ Observer = Callable[..., Any]
 class BeforeEventMethodWrapper:
     def __init__(self, method: Method) -> None:
         self.method = method
-        self.beforeEvent = Event()
+        self.beforeEvent: Event[Any] = Event()
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         self.beforeEvent(self.beforeEvent)
@@ -35,7 +37,7 @@ def triggers_before_event(method: Method) -> BeforeEventMethodWrapper:
 class AfterEventMethodWrapper:
     def __init__(self, method: Method) -> None:
         self.method = method
-        self.afterEvent = Event()
+        self.afterEvent: Event[Any] = Event()
 
     def run(self, *args: Any, **kwargs: Any) -> None:
         self.method(*args, **kwargs)
@@ -61,8 +63,8 @@ def triggers_after_event(method: Method) -> AfterEventMethodWrapper:
 class AroundEventMethodWrapper:
     def __init__(self, method: Method) -> None:
         self.method = method
-        self.beforeEvent = Event()
-        self.afterEvent = Event()
+        self.beforeEvent: Event[Any] = Event()
+        self.afterEvent: Event[Any] = Event()
 
     def __call__(self, *args: Any, **kwargs: Any) -> None:
         self.beforeEvent(self.beforeEvent)

@@ -1,20 +1,22 @@
 import logging
-from typing import Any, Callable, List, Set
+from typing import Any, Callable, Generic, TypeVar
 
 log = logging.getLogger(__name__)
 
-Observer = Any
+
+T = TypeVar("T")
 
 
-class Event:
+class Event(Generic[T]):
     def __init__(self) -> None:
-        self._subscribers: Set[Observer] = set()
+        self._subscribers: set[Callable[[T], None]] = set()
         self._fireCount = 0
         self._currentFireCount = 0
-        self._subscribe_queue: List[Observer] = []
-        self._unsubscribe_queue: List[Observer] = []
+        self._subscribe_queue: list[Callable[[T], None]] = []
+        self._unsubscribe_queue: list[Callable[[T], None]] = []
 
-    def subscribe(self, subscriber: Observer) -> "Event":
+    def subscribe(self, subscriber: Callable[[T], None]) -> "Event[T]":
+        """Adds given `subscriber` and returns this Event"""
         # only modify the _subscribers set if we're not currently firing
         # otherwise queue the subscription for processing after firing is done
         if self.isFiring():
@@ -24,7 +26,8 @@ class Event:
         self._subscribers.add(subscriber)
         return self
 
-    def unsubscribe(self, subscriber: Observer) -> "Event":
+    def unsubscribe(self, subscriber: Callable[[T], None]) -> "Event[T]":
+        """Removes given `subscriber` and returns this Event"""
         # only modify the _subscribers set if we're not currently firing
         # otherwise queue the unsubscription for processing after firing is done
         if self.isFiring():
@@ -38,7 +41,7 @@ class Event:
 
         return self
 
-    def hasSubscriber(self, subscriber: Observer) -> bool:
+    def hasSubscriber(self, subscriber: Callable[[T], None]) -> bool:
         return subscriber in self._subscribers
 
     def fire(self, *args: Any, **kargs: Any) -> None:
@@ -79,7 +82,7 @@ class Event:
     def isFiring(self) -> bool:
         return self._currentFireCount > 0
 
-    def add(self, subscriber: Observer) -> Callable[[], None]:
+    def add(self, subscriber: Callable[[T], None]) -> Callable[[], None]:
         """Same as `subscribe` but returns a callable without arguments
         that can be used to unsubscribe the `subscriber`"""
         self.subscribe(subscriber)
