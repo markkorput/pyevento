@@ -22,8 +22,10 @@ class BeforeEventMethodWrapper:
     __iadd__ = subscribe
     __isub__ = unsubscribe
 
+
 def triggers_before_event(func):
     return BeforeEventMethodWrapper(func)
+
 
 class AfterEventMethodWrapper:
     def __init__(self, method):
@@ -46,8 +48,10 @@ class AfterEventMethodWrapper:
     __iadd__ = subscribe
     __isub__ = unsubscribe
 
+
 def triggers_after_event(func):
     return AfterEventMethodWrapper(func)
+
 
 class AroundEventMethodWrapper:
     def __init__(self, method):
@@ -63,6 +67,7 @@ class AroundEventMethodWrapper:
     def subscribe(self, before_callback, after_callback):
         self.beforeEvent += before_callback
         self.afterEvent += after_callback
+
 
 def triggers_beforeafter_events(func):
     return AroundEventMethodWrapper(func)

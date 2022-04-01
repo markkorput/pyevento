@@ -117,22 +117,3 @@ class TestDecorators:
 
         assert some_action.beforeEvent.hasSubscriber(before)
         assert some_action.afterEvent.hasSubscriber(after)
-
-    def test_beforeafter_subscribe(self):
-        @triggers_beforeafter_events
-        def some_action():
-            self.value += "a"
-
-        def before(event):
-            pass
-
-        def after(event):
-            pass
-
-        assert not some_action.beforeEvent.hasSubscriber(before)
-        assert not some_action.afterEvent.hasSubscriber(after)
-
-        some_action.subscribe(before, after)
-
-        assert some_action.beforeEvent.hasSubscriber(before)
-        assert some_action.afterEvent.hasSubscriber(after)

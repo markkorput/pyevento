@@ -2,6 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Event:
     def __init__(self):
         self._subscribers = set()
@@ -30,7 +31,7 @@ class Event:
         try:
             self._subscribers.remove(subscriber)
         except KeyError as err:
-            logger.warning('Event.unsubscribe got unknown handler: {}'.format(err))
+            logger.warning("Event.unsubscribe got unknown handler: {}".format(err))
 
         return self
 
@@ -45,7 +46,7 @@ class Event:
         for subscriber in self._subscribers:
             # the handler might have got unsubscribed
             # inside one of the previous subscribers
-            if not subscriber in self._unsubscribe_queue:
+            if subscriber not in self._unsubscribe_queue:
                 subscriber(*args, **kargs)
 
         # current fire cycle is done, uncount it
@@ -77,12 +78,14 @@ class Event:
 
     def add(self, subscriber):
         self.subscribe(subscriber)
+
         def unsub():
             self.unsubscribe(subscriber)
+
         return unsub
 
     __iadd__ = subscribe
     __isub__ = unsubscribe
     __call__ = fire
-    __len__  = getSubscriberCount
+    __len__ = getSubscriberCount
     __contains__ = hasSubscriber

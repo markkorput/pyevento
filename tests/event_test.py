@@ -3,7 +3,6 @@ from evento import Event
 
 class TestEventMethods:
     def test_fire(self):
-
         e = Event()
 
         def observer(p1, p2):
@@ -81,11 +80,11 @@ class TestEventMethods:
         def observer():
             pass
 
-        assert e.hasSubscriber(observer) == False
+        assert not e.hasSubscriber(observer)
         e += observer
-        assert e.hasSubscriber(observer) == True
+        assert e.hasSubscriber(observer)
         e -= observer
-        assert e.hasSubscriber(observer) == False
+        assert not e.hasSubscriber(observer)
 
     def test_magic_methods(self):
         e = Event()
@@ -128,7 +127,7 @@ class TestEventModifierSubscribers:
 
         try:
             self.e()
-        except RuntimeError as err:
+        except RuntimeError:
             self.fail("Event failed to deal with a subscriber that unsubscribed itself")
 
     def subscriber_callback(self):
@@ -140,7 +139,7 @@ class TestEventModifierSubscribers:
 
         try:
             self.e()
-        except RuntimeError as err:
+        except RuntimeError:
             self.fail("Event failed to deal with a subscriber that subscribed another observer")
 
     def test_recursion_without_complications(self):
