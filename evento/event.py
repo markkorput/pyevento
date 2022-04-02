@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Generic, TypeVar
+from typing import Callable, Generic, TypeVar
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class Event(Generic[T]):
     def hasSubscriber(self, subscriber: Callable[[T], None]) -> bool:
         return subscriber in self._subscribers
 
-    def fire(self, *args: Any, **kargs: Any) -> None:
+    def fire(self, value: T) -> None:
         # count the number of (recursive) fires currently happening
         self._currentFireCount += 1
 
@@ -53,7 +53,7 @@ class Event(Generic[T]):
             # the handler might have got unsubscribed
             # inside one of the previous subscribers
             if subscriber not in self._unsubscribe_queue:
-                subscriber(*args, **kargs)
+                subscriber(value)
 
         # current fire cycle is done, uncount it
         self._currentFireCount -= 1

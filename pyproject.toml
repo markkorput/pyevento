@@ -4,7 +4,7 @@ version = "1.0.2"
 description = "Observer pattern made muy facil"
 authors = ["Mark van de Korput <dr.theman@gmail.com>"]
 license = "MIT"
-packages = [{ include = "evento", "from" = "." }]
+packages = [{ include = "evento", from = "." }]
 
 [tool.poetry.dependencies]
 python = "^3.10"

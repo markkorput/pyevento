@@ -1,5 +1,5 @@
 RUN = poetry run
-PATHS = evento tests
+PATHS = evento tests examples
 
 # Code style
 .PHONY: format

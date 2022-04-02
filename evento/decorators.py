@@ -1,11 +1,14 @@
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable
 
+from .complex import ComplexEvent, P, T
 from .event import Event
-
-T = TypeVar("T")
 
 Method = Callable[..., Any]
 Observer = Callable[..., Any]
+
+
+def event(method: Callable[P, T]) -> ComplexEvent[P, T]:
+    return ComplexEvent(method)  # type: ignore
 
 
 class BeforeEventMethodWrapper:

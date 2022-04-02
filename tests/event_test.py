@@ -3,14 +3,14 @@ from evento import Event
 
 class TestEventMethods:
     def test_fire(self):
-        e = Event()
+        e = Event[list[str]]()
 
-        def observer(p1, p2):
-            self.value = ",".join([p1, p2])
+        def observer(val: list[str]):
+            self.value = ",".join(val)
 
         e += observer
 
-        e.fire("p1", "p2")
+        e.fire(["p1", "p2"])
         assert self.value == "p1,p2"
 
     def test_subscribe(self):
@@ -116,9 +116,54 @@ class TestEventMethods:
         unsub()
         assert e.getSubscriberCount() == 0
 
+    def test_unsubscribe_during_fire(self):
+        e = Event()
+        self.e = e
+
+        record = []
+
+        def observer2(v: int):
+            record.append((2, v))
+            self.e -= observer1
+
+        def observer1(v: int):
+            record.append((1, v))
+
+        e += observer1
+        e += observer2
+
+        assert len(e) == 2
+        e(1)
+        assert record == [(1, 1), (2, 1)]
+        assert len(e) == 1
+        e(2)
+        assert record == [(1, 1), (2, 1), (2, 2)]
+
+    def test_subscribe_during_fire(self):
+        e = Event()
+
+        record = []
+
+        def observer2(v: int):
+            nonlocal e
+            record.append((2, v))
+            e += observer1
+
+        def observer1(v: int):
+            record.append((1, v))
+
+        e.subscribe(observer2)
+        assert len(e) == 1
+        e(1)
+        assert record == [(2, 1)]
+        assert len(e) == 2
+        e(2)
+        assert record == [(2, 1), (1, 2), (2, 2)]
+        assert len(e) == 2
+
 
 class TestEventModifierSubscribers:
-    def remover_callback(self):
+    def remover_callback(self, v):
         self.e -= self.remover_callback
 
     def test_recursion_with_unsubscribing_callback(self):
@@ -126,11 +171,11 @@ class TestEventModifierSubscribers:
         self.e += self.remover_callback
 
         try:
-            self.e()
+            self.e(1)
         except RuntimeError:
             self.fail("Event failed to deal with a subscriber that unsubscribed itself")
 
-    def subscriber_callback(self):
+    def subscriber_callback(self, v):
         self.e += self.remover_callback
 
     def test_recursion_with_subscribing_callback(self):
@@ -138,7 +183,7 @@ class TestEventModifierSubscribers:
         self.e += self.subscriber_callback
 
         try:
-            self.e()
+            self.e(1)
         except RuntimeError:
             self.fail("Event failed to deal with a subscriber that subscribed another observer")
 
