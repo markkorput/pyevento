@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "evento"
-version = "1.0.2"
+version = "2.0.0"
 description = "Observer pattern made muy facil"
 authors = ["Mark van de Korput <dr.theman@gmail.com>"]
 license = "MIT"
