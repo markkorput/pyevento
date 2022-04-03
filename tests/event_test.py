@@ -1,3 +1,5 @@
+import pytest
+
 from evento import Event
 
 
@@ -42,79 +44,13 @@ class TestEventMethods:
         e.fire(6)
         assert self.counter == 5
 
-    def test_getSubscriberCount(self):
-
+    def test_callback_order(self):
         e = Event()
-
-        def observer1():
-            pass
-
-        def observer2():
-            pass
-
-        def observer3():
-            pass
-
-        assert e.getSubscriberCount() == 0
-        e += observer1
-        assert e.getSubscriberCount() == 1
-        e += observer2
-        assert e.getSubscriberCount() == 2
-        e += observer3
-        assert e.getSubscriberCount() == 3
-
-    def test_getSubscriberCount_with_duplicates(self):
-        e = Event()
-
-        def observer1():
-            pass
-
-        e += observer1
-        assert e.getSubscriberCount() == 1
-        e += observer1
-        assert e.getSubscriberCount() == 1
-
-    def test_hasSubscriber(self):
-        e = Event()
-
-        def observer():
-            pass
-
-        assert not e.hasSubscriber(observer)
-        e += observer
-        assert e.hasSubscriber(observer)
-        e -= observer
-        assert not e.hasSubscriber(observer)
-
-    def test_magic_methods(self):
-        e = Event()
-        # this lets you trigger the event like this:
-        # e('param1', 'param2')
-        assert e.__call__ == e.fire
-        # this lets you add subscribers like this:
-        # e += observer_method
-        assert e.__iadd__ == e.subscribe
-        # this lets you remove subscribers like this:
-        # e -= observer_method
-        assert e.__isub__ == e.unsubscribe
-        # this lets you request the number of observers like this:
-        # len(e)
-        assert e.__len__ == e.getSubscriberCount
-        # this lets you check if a method is already subscribed to the event like this:
-        # observer_method in e
-        assert e.__contains__ == e.hasSubscriber
-
-    def test_add(self):
-        e = Event()
-
-        def foo():
-            pass
-
-        # add method does the same as subscribe, but returns an unsubscribe function
-        unsub = e.add(foo)
-        assert e.getSubscriberCount() == 1
-        unsub()
-        assert e.getSubscriberCount() == 0
+        log = []
+        e += lambda _: log.append(1)
+        e += lambda _: log.append(2)
+        e(0)
+        assert log == [1, 2]
 
     def test_unsubscribe_during_fire(self):
         e = Event()
@@ -122,12 +58,12 @@ class TestEventMethods:
 
         record = []
 
+        def observer1(v: int):
+            record.append((1, v))
+
         def observer2(v: int):
             record.append((2, v))
             self.e -= observer1
-
-        def observer1(v: int):
-            record.append((1, v))
 
         e += observer1
         e += observer2
@@ -144,13 +80,13 @@ class TestEventMethods:
 
         record = []
 
+        def observer1(v: int):
+            record.append((1, v))
+
         def observer2(v: int):
             nonlocal e
             record.append((2, v))
             e += observer1
-
-        def observer1(v: int):
-            record.append((1, v))
 
         e.subscribe(observer2)
         assert len(e) == 1
@@ -158,8 +94,80 @@ class TestEventMethods:
         assert record == [(2, 1)]
         assert len(e) == 2
         e(2)
-        assert record == [(2, 1), (1, 2), (2, 2)]
+        assert record == [(2, 1), (2, 2), (1, 2)]
         assert len(e) == 2
+
+    def test_len(self):
+
+        e = Event()
+
+        def observer1():
+            pass
+
+        def observer2():
+            pass
+
+        def observer3():
+            pass
+
+        assert len(e) == 0
+        e += observer1
+        assert len(e) == 1
+        e += observer2
+        assert len(e) == 2
+        e += observer3
+        assert len(e) == 3
+
+    def test_len_with_duplicates(self):
+        e = Event()
+
+        def observer1():
+            pass
+
+        e += observer1
+        assert len(e) == 1
+        e += observer1
+        assert len(e) == 1
+
+    def test_magic_methods(self):
+        e = Event()
+        # this lets you trigger the event like this:
+        # e('param1', 'param2')
+        assert e.__call__ == e.fire
+        # this lets you add subscribers like this:
+        # e += observer_method
+        assert e.__iadd__ == e.subscribe
+        # this lets you remove subscribers like this:
+        # e -= observer_method
+        assert e.__isub__ == e.unsubscribe
+
+    def test_add(self):
+        e = Event()
+
+        def foo():
+            pass
+
+        # add method does the same as subscribe, but returns an unsubscribe function
+        unsub = e.add(foo)
+        assert len(e) == 1
+        unsub()
+        assert len(e) == 0
+
+    def test_invoke_with_invalid_signature(self):
+        e = Event()
+        e(1)
+        # these don't give runtime issues, but should trigger mypy
+        e("1")
+        e(False)
+
+        with pytest.raises(TypeError):
+            e()
+
+        with pytest.raises(TypeError):
+            e(1, 2)
+
+        with pytest.raises(TypeError):
+            e(1, foo="bar")
 
 
 class TestEventModifierSubscribers:

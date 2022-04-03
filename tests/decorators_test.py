@@ -65,12 +65,12 @@ class TestDecorators:
         def before(_):
             pass
 
-        assert not some_action.beforeEvent.hasSubscriber(before)
+        assert before not in some_action.beforeEvent
         # some_action.subscribe(before)
         some_action += before
-        assert some_action.beforeEvent.hasSubscriber(before)
+        assert before in some_action.beforeEvent
         some_action -= before
-        assert not some_action.beforeEvent.hasSubscriber(before)
+        assert before not in some_action.beforeEvent
 
         # magic methods explained
         # this lets you do some_action += before
@@ -86,12 +86,12 @@ class TestDecorators:
         def after(_):
             pass
 
-        assert not some_action.afterEvent.hasSubscriber(after)
+        assert after not in some_action.afterEvent
         # some_action.subscribe(before)
         some_action += after
-        assert some_action.afterEvent.hasSubscriber(after)
+        assert after in some_action.afterEvent
         some_action -= after
-        assert not some_action.afterEvent.hasSubscriber(after)
+        assert after not in some_action.afterEvent
 
         # magic methods explained
         # this lets you do some_action += before
@@ -110,10 +110,10 @@ class TestDecorators:
         def after(_):
             pass
 
-        assert not some_action.beforeEvent.hasSubscriber(before)
-        assert not some_action.afterEvent.hasSubscriber(after)
+        assert before not in some_action.beforeEvent
+        assert after not in some_action.afterEvent
 
         some_action.subscribe(before, after)
 
-        assert some_action.beforeEvent.hasSubscriber(before)
-        assert some_action.afterEvent.hasSubscriber(after)
+        assert before in some_action.beforeEvent
+        assert after in some_action.afterEvent

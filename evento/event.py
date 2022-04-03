@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Generic, TypeVar
+from typing import Any, Callable, Generic, Iterable, TypeVar, Union
 
 log = logging.getLogger(__name__)
 
@@ -7,49 +7,49 @@ log = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
-class Event(Generic[T]):
+class Event(Generic[T], list[Callable[[T], Any]]):
+    @property
+    def is_firing(self) -> bool:
+        return self._currentFireCount > 0
+
     def __init__(self) -> None:
-        self._subscribers: set[Callable[[T], None]] = set()
+        super().__init__(())
         self._fireCount = 0
         self._currentFireCount = 0
         self._subscribe_queue: list[Callable[[T], None]] = []
         self._unsubscribe_queue: list[Callable[[T], None]] = []
 
-    def subscribe(self, subscriber: Callable[[T], None]) -> "Event[T]":
+    def subscribe(
+        self, subscribers: Union[Callable[[T], None], Iterable[Callable[[T], None]]]
+    ) -> "Event[T]":
         """Adds given `subscriber` and returns this Event"""
-        # only modify the _subscribers set if we're not currently firing
+        # only modify self if we're not currently firing
         # otherwise queue the subscription for processing after firing is done
-        if self.isFiring():
-            self._subscribe_queue.append(subscriber)
-            return self
+        if callable(subscribers):
+            subscribers = [subscribers]
 
-        self._subscribers.add(subscriber)
+        for s in subscribers:
+            self.append(s)
+
         return self
 
     def unsubscribe(self, subscriber: Callable[[T], None]) -> "Event[T]":
         """Removes given `subscriber` and returns this Event"""
-        # only modify the _subscribers set if we're not currently firing
+        # only modify self if we're not currently firing
         # otherwise queue the unsubscription for processing after firing is done
-        if self.isFiring():
-            self._unsubscribe_queue.append(subscriber)
-            return self
-
         try:
-            self._subscribers.remove(subscriber)
+            self.remove(subscriber)
         except KeyError as err:
             log.warning("Event.unsubscribe got unknown handler: {}".format(err))
 
         return self
-
-    def hasSubscriber(self, subscriber: Callable[[T], None]) -> bool:
-        return subscriber in self._subscribers
 
     def fire(self, value: T) -> None:
         # count the number of (recursive) fires currently happening
         self._currentFireCount += 1
 
         # execute all subscribers
-        for subscriber in self._subscribers:
+        for subscriber in self:
             # the handler might have got unsubscribed
             # inside one of the previous subscribers
             if subscriber not in self._unsubscribe_queue:
@@ -61,39 +61,50 @@ class Event(Generic[T]):
         # we're counting the number of fires (mostly for testing purposes)
         self._fireCount += 1
 
-        # only if we're not still in a recursive fire situation
-        if not self.isFiring():
-            self._processQueues()
+        # only if we're not spropertytill in a recursive fire situation
+        if not self.is_firing:
+            self._process_queues()
 
-    def _processQueues(self) -> None:
+    def _process_queues(self) -> None:
         for subscriber in self._subscribe_queue:
-            self.subscribe(subscriber)
+            self.append(subscriber)
 
         for subscriber in self._unsubscribe_queue:
-            self.unsubscribe(subscriber)
+            self.remove(subscriber)
 
         # reset processed queues
         self._subscribe_queue = []
         self._unsubscribe_queue = []
 
-    def getSubscriberCount(self) -> int:
-        return len(self._subscribers)
-
-    def isFiring(self) -> bool:
-        return self._currentFireCount > 0
-
     def add(self, subscriber: Callable[[T], None]) -> Callable[[], None]:
         """Same as `subscribe` but returns a callable without arguments
         that can be used to unsubscribe the `subscriber`"""
-        self.subscribe(subscriber)
+        if subscriber not in self:
+            if self.is_firing:
+                self._subscribe_queue.append(subscriber)
+            else:
+                super().append(subscriber)
 
         def unsub() -> None:
             self.unsubscribe(subscriber)
 
         return unsub
 
+    def append(self, subscriber: Callable[[T], None]) -> None:
+        self.add(subscriber)
+
+    def remove(self, subscriber: Callable[[T], None]) -> None:
+        if self.is_firing:
+            self._unsubscribe_queue.append(subscriber)
+            return
+
+        if subscriber in self:
+            super().remove(subscriber)
+
+    def _equals(self, other: Any) -> bool:
+        return id(self) == id(other)
+
     __iadd__ = subscribe
     __isub__ = unsubscribe
     __call__ = fire
-    __len__ = getSubscriberCount
-    __contains__ = hasSubscriber
+    __eq__ = _equals

@@ -66,8 +66,8 @@ def triggers_after_event(method: Method) -> AfterEventMethodWrapper:
 class AroundEventMethodWrapper:
     def __init__(self, method: Method) -> None:
         self.method = method
-        self.beforeEvent: Event[Any] = Event()
-        self.afterEvent: Event[Any] = Event()
+        self.beforeEvent: Event[Event[Any]] = Event()
+        self.afterEvent: Event[Event[Any]] = Event()
 
     def __call__(self, *args: Any, **kwargs: Any) -> None:
         self.beforeEvent(self.beforeEvent)

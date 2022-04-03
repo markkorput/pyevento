@@ -33,19 +33,19 @@ class ComplexEvent(Generic[P, T]):
         return self
 
     def unsubscribe(self, observer: Callable[P, Any]) -> "ComplexEvent[P, T]":
-        proxy = self._findProxy(observer)
+        proxy = self._find_proxy(observer)
         if proxy:
             self._event -= proxy
         return self
 
-    def hasSubscriber(self, subscriber: Callable[P, Any]) -> bool:
-        return self._findProxy(subscriber) is not None
+    def has(self, subscriber: Callable[P, Any]) -> bool:
+        return self._find_proxy(subscriber) is not None
 
-    def _findProxy(self, subscriber: Callable[P, Any]) -> Optional[Proxy[P]]:
+    def _find_proxy(self, subscriber: Callable[P, Any]) -> Optional[Proxy[P]]:
         return next(
             (
                 cast(Proxy[P], p)
-                for p in self._event._subscribers
+                for p in self._event
                 if isinstance(p, Proxy) and p.observer == subscriber
             ),
             None,
@@ -55,14 +55,15 @@ class ComplexEvent(Generic[P, T]):
         self.subscribe(observer)
         return lambda: self.unsubscribe(observer)
 
-    def isFiring(self) -> bool:
-        return self._event.isFiring()
+    @property
+    def is_firing(self) -> bool:
+        return self._event.is_firing
 
-    def getSubscriberCount(self) -> int:
+    def _len(self) -> int:
         return len(self._event)
 
     __iadd__ = subscribe
     __isub__ = unsubscribe
     __call__ = fire
-    __len__ = getSubscriberCount
-    __contains__ = hasSubscriber
+    __len__ = _len
+    __contains__ = has
