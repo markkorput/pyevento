@@ -6,6 +6,11 @@ T = TypeVar("T")
 
 
 class Event(Generic[T], BaseEvent):
+    def fire(self, value: T) -> None:
+        self._fire(value)
+
+    __call__ = fire
+
     def __iadd__(
         self, subscribers: Union[Callable[[T], Any], Iterable[Callable[[T], Any]]]
     ) -> "Event[T]":

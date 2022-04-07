@@ -13,12 +13,12 @@ class BaseEvent:
         self._subscribers: list[Callable[..., Any]] = []
         self._fireCount = 0
         self._currentFireCount = 0
-        self._add_queue: list[Callable[[Any], None]] = []
-        self._remove_queue: list[Callable[[Any], None]] = []
+        self._add_queue: list[Callable[..., Any]] = []
+        self._remove_queue: list[Callable[..., Any]] = []
 
-    def fire(self, value: Any) -> Any:
+    def _fire(self, *args: Any, **kwargs: Any) -> Any:
         for subscriber in self._iter():
-            subscriber(value)
+            subscriber(*args, **kwargs)
 
     def append(self, subscribers: Union[Callable[..., Any], Iterable[Callable[..., Any]]]) -> None:
         if callable(subscribers):
@@ -96,5 +96,3 @@ class BaseEvent:
 
     def __contains__(self, subscriber: Callable[..., Any]) -> bool:
         return subscriber in self._subscribers
-
-    __call__ = fire

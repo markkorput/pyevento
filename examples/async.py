@@ -7,7 +7,7 @@ async def observer(value: str) -> None:
     print(value)
 
 
-async def main():
+async def main() -> None:
     event = AsyncEvent[str]()
     await event("This does nothing.")
     event += observer

@@ -6,7 +6,7 @@ T = TypeVar("T")
 
 
 class AsyncEvent(Generic[T], BaseEvent):
-    async def fire(self, value: Any) -> Any:
+    async def fire(self, value: T) -> None:
         for subscriber in self._iter():
             await subscriber(value)
 
