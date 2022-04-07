@@ -4,11 +4,11 @@ from evento import decorators
 
 
 @decorators.event
-def multi_arg_event(id: int, message: str, price: float, **opts: Any) -> Any:
+def multi_arg_event(id: int, message: str, price: float, **opts: Any) -> None:
     ...
 
 
-def observer(id: int, message: str, price: float, **opts: Any) -> Any:
+def observer(id: int, message: str, price: float, **opts: Any) -> None:
     print(f"observer: id={id}, message={message}, price={price}, opts={opts}")
 
 
@@ -18,7 +18,7 @@ def observer_with_return_value(id: int, message: str, price: float, **opts: Any)
     return result
 
 
-multi_arg_event.subscribe(observer)
+multi_arg_event.append(observer)
 multi_arg_event += observer_with_return_value
 
 

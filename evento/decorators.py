@@ -1,14 +1,18 @@
-from typing import Any, Callable
+from typing import Any, Awaitable, Callable
 
-from .complex import ComplexEvent, P, T
 from .event import Event
+from .signature import AsyncSignatureEvent, P, R, SignatureEvent
 
 Method = Callable[..., Any]
 Observer = Callable[..., Any]
 
 
-def event(method: Callable[P, T]) -> ComplexEvent[P, T]:
-    return ComplexEvent(method)  # type: ignore
+def event(method: Callable[P, R]) -> SignatureEvent[P, R]:
+    return SignatureEvent[P, R](method)
+
+
+def async_event(method: Callable[P, Awaitable[R]]) -> AsyncSignatureEvent[P, R]:
+    return AsyncSignatureEvent[P, R](method)
 
 
 class BeforeEventMethodWrapper:
