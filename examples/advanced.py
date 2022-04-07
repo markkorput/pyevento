@@ -18,7 +18,7 @@ def observer_with_return_value(id: int, message: str, price: float, **opts: Any)
     return result
 
 
-multi_arg_event.subscribe(observer)
+multi_arg_event.append(observer)
 multi_arg_event += observer_with_return_value
 
 

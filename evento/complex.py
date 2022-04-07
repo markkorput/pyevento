@@ -28,42 +28,44 @@ class ComplexEvent(Generic[P, T]):
         self._event((args, kwargs))
         return self._method(*args, **kwargs)
 
-    def subscribe(self, observer: Callable[P, Any]) -> "ComplexEvent[P, T]":
+    def __iadd__(self, observer: Callable[P, Any]) -> "ComplexEvent[P, T]":
         self._event += Proxy(observer)
         return self
 
-    def unsubscribe(self, observer: Callable[P, Any]) -> "ComplexEvent[P, T]":
+    def __isub__(self, observer: Callable[P, Any]) -> "ComplexEvent[P, T]":
         proxy = self._find_proxy(observer)
         if proxy:
             self._event -= proxy
         return self
 
-    def has(self, subscriber: Callable[P, Any]) -> bool:
+    def __contains__(self, subscriber: Callable[P, Any]) -> bool:
         return self._find_proxy(subscriber) is not None
 
     def _find_proxy(self, subscriber: Callable[P, Any]) -> Optional[Proxy[P]]:
         return next(
             (
                 cast(Proxy[P], p)
-                for p in self._event
+                for p in self._event._subscribers
                 if isinstance(p, Proxy) and p.observer == subscriber
             ),
             None,
         )
 
-    def add(self, observer: Callable[P, Any]) -> Callable[[], "ComplexEvent[P, T]"]:
-        self.subscribe(observer)
-        return lambda: self.unsubscribe(observer)
+    def append(self, observer: Callable[P, Any]) -> None:
+        self.add(observer)
+
+    def remove(self, observer: Callable[P, Any]) -> None:
+        self.__isub__(observer)
+
+    def add(self, observer: Callable[P, Any]) -> Callable[[], Any]:
+        self += observer
+        return lambda: self.remove(observer)
 
     @property
     def is_firing(self) -> bool:
         return self._event.is_firing
 
-    def _len(self) -> int:
+    def __len__(self) -> int:
         return len(self._event)
 
-    __iadd__ = subscribe
-    __isub__ = unsubscribe
     __call__ = fire
-    __len__ = _len
-    __contains__ = has

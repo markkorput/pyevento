@@ -4,7 +4,6 @@
 [![PyPI wheel](https://img.shields.io/pypi/wheel/evento?style=flat)](https://pypi.org/project/evento/ "View this project on npm")
 [![Github Tag](https://img.shields.io/github/tag/markkorput/pyevento.svg?label=version)](https://github.com/markkorput/pyevento/releases/latest)
 
-
 Python evento package, making the Observer pattern estúpida sencillo.
 
 ## Install
@@ -69,6 +68,7 @@ performer.run() # => "'Foo action' ran 2 times"
 ```
 
 ### Unsubscribe function returned by .add
+
 ```python
 
 # setup
@@ -89,8 +89,6 @@ cleanup = setup()
 # cleanup
 cleanup()
 ```
-		
-
 
 ## Decorators
 
@@ -131,9 +129,9 @@ after_action('first after:', '1', '2') # => "first after: 1 2"
 both_action() # => "during"
 
 # subscribe callbacks to the decorated methods
-before_action.subscribe(before)
-after_action.subscribe(after)
-both_action.subscribe(before, after)
+before_action.append(before)
+after_action.append(after)
+both_action.append(before, after)
 
 before_action('second before') # => "before\nsecond before"
 after_action('second after:', '3', '4') # => second after: 3 4\nafter"
@@ -147,4 +145,3 @@ Note that these decorators simply wrap the function in a class that also holds a
 before_action.subscribe(before)
 before_action.beforeEvent += before
 ```
-

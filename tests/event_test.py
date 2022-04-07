@@ -3,7 +3,7 @@ import pytest
 from evento import Event
 
 
-class TestEventMethods:
+class TestEvent:
     def test_fire(self):
         e = Event[list[str]]()
 
@@ -15,21 +15,21 @@ class TestEventMethods:
         e.fire(["p1", "p2"])
         assert self.value == "p1,p2"
 
-    def test_subscribe(self):
+    def test_append(self):
 
         e = Event()
 
         def observer(par1):
             self.counter = par1 * 2
 
-        e.subscribe(observer)
+        e.append(observer)
 
         e.fire(5)
         assert self.counter == 10
         e.fire(4)
         assert self.counter == 8
 
-    def test_unsubscribe(self):
+    def test_remove(self):
 
         e = Event()
 
@@ -40,7 +40,7 @@ class TestEventMethods:
 
         e.fire(3)
         assert self.counter == 5
-        e.unsubscribe(observer)
+        e.remove(observer)
         e.fire(6)
         assert self.counter == 5
 
@@ -52,7 +52,7 @@ class TestEventMethods:
         e(0)
         assert log == [1, 2]
 
-    def test_unsubscribe_during_fire(self):
+    def test_remove_during_fire(self):
         e = Event()
         self.e = e
 
@@ -75,7 +75,7 @@ class TestEventMethods:
         e(2)
         assert record == [(1, 1), (2, 1), (2, 2)]
 
-    def test_subscribe_during_fire(self):
+    def test_append_during_fire(self):
         e = Event()
 
         record = []
@@ -88,7 +88,7 @@ class TestEventMethods:
             record.append((2, v))
             e += observer1
 
-        e.subscribe(observer2)
+        e.append(observer2)
         assert len(e) == 1
         e(1)
         assert record == [(2, 1)]
@@ -129,18 +129,6 @@ class TestEventMethods:
         e += observer1
         assert len(e) == 1
 
-    def test_magic_methods(self):
-        e = Event()
-        # this lets you trigger the event like this:
-        # e('param1', 'param2')
-        assert e.__call__ == e.fire
-        # this lets you add subscribers like this:
-        # e += observer_method
-        assert e.__iadd__ == e.subscribe
-        # this lets you remove subscribers like this:
-        # e -= observer_method
-        assert e.__isub__ == e.unsubscribe
-
     def test_add(self):
         e = Event()
 
@@ -169,41 +157,40 @@ class TestEventMethods:
         with pytest.raises(TypeError):
             e(1, foo="bar")
 
+    class TestEventModifyingSubscribers:
+        def remover_callback(self, v):
+            self.e -= self.remover_callback
 
-class TestEventModifierSubscribers:
-    def remover_callback(self, v):
-        self.e -= self.remover_callback
+        def test_recursion_with_removing_callback(self):
+            self.e = Event()
+            self.e += self.remover_callback
 
-    def test_recursion_with_unsubscribing_callback(self):
-        self.e = Event()
-        self.e += self.remover_callback
+            try:
+                self.e(1)
+            except RuntimeError:
+                self.fail("Event failed to deal with a subscriber that unsubscribed itself")
 
-        try:
-            self.e(1)
-        except RuntimeError:
-            self.fail("Event failed to deal with a subscriber that unsubscribed itself")
+        def appender_callback(self, v):
+            self.e += self.remover_callback
 
-    def subscriber_callback(self, v):
-        self.e += self.remover_callback
+        def test_recursion_with_appending_callback(self):
+            self.e = Event()
+            self.e += self.appender_callback
 
-    def test_recursion_with_subscribing_callback(self):
-        self.e = Event()
-        self.e += self.subscriber_callback
+            try:
+                self.e(1)
+            except RuntimeError:
+                self.fail("Event failed to deal with a subscriber that appended another observer")
 
-        try:
-            self.e(1)
-        except RuntimeError:
-            self.fail("Event failed to deal with a subscriber that subscribed another observer")
+        def test_recursion_without_complications(self):
+            self.e = Event()
 
-    def test_recursion_without_complications(self):
-        self.e = Event()
+            def callback(val):
+                self.value += val
+                if len(self.value) < 3:
+                    self.e(self.value)
 
-        def callback(val):
-            self.value += val
-            if len(self.value) < 3:
-                self.e(self.value)
-
-        self.e += callback
-        self.value = ""
-        self.e("a")
-        assert self.value, "aaaa"
+            self.e += callback
+            self.value = ""
+            self.e("a")
+            assert self.value, "aaaa"
