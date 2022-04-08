@@ -1,10 +1,13 @@
 [tool.poetry]
 name = "evento"
-version = "2.0.0"
+version = "2.0.1"
 description = "Observer pattern made muy facil"
 authors = ["Mark van de Korput <dr.theman@gmail.com>"]
+readme = "README.md"
 license = "MIT"
 packages = [{ include = "evento", from = "." }]
+homepage = "https://github.com/markkorput/pyevento"
+repository = "https://github.com/markkorput/pyevento"
 
 [tool.poetry.dependencies]
 python = "^3.10"
