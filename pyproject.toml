@@ -1,0 +1,50 @@
+[tool.poetry]
+name = "evento"
+version = "2.0.1"
+description = "Observer pattern made muy facil"
+authors = ["Mark van de Korput <dr.theman@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+packages = [{ include = "evento", from = "." }]
+homepage = "https://github.com/markkorput/pyevento"
+repository = "https://github.com/markkorput/pyevento"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.1"
+devtools = {version = "^0.8.0", extras = ["pygments"]}
+flake8 = "^4.0.1"
+isort = "^5.10.1"
+mypy = "^0.942"
+vulture = "^2.3"
+pytest-testmon = "^1.3.1"
+pytest-watch = "^4.2.0"
+black = "^22.3.0"
+pytest-asyncio = "^0.18.3"
+mock = "^4.0.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+python_files = "*_test.py"
+asyncio_mode = "strict"
+markers = """
+focus: what is being developed right now"""
+
+[tool.black]
+line-length = 100
+preview = true
+target-version = ['py37']
+include = '\.pyi?$'
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 88
