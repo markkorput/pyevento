@@ -1,9 +1,9 @@
 from typing import Any
 
-from evento import decorators
+from evento import event
 
 
-@decorators.event
+@event
 def multi_arg_event(id: int, message: str, price: float, **opts: Any) -> None:
     ...
 

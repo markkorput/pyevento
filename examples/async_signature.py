@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 
-from evento import decorators
+from evento import async_event
 
 
 async def observer(id: int, message: str, price: float, **opts: Any) -> Any:
@@ -14,7 +14,7 @@ async def observer_with_return_value(id: int, message: str, price: float, **opts
 
 
 async def main() -> None:
-    @decorators.async_event
+    @async_event
     async def multi_arg_event(id: int, message: str, price: float, **opts: Any) -> str:
         return "Done"
 
